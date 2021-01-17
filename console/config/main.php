@@ -24,13 +24,5 @@ return [
             ],
         ],
     ],
-    'controllerMap' => [
-        'parser' => [
-            'class' => ParserController::class,
-            'apacheLogsDir' => '/Users/dmitry/Projects/logsParser/console/runtime/apache-logs',
-            'logFormat' => '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"',
-            'logFileMasks' => ['access*.log']
-        ]
-    ],
     'params' => $params,
 ];
