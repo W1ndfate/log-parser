@@ -21,7 +21,6 @@ use yii\web\IdentityInterface;
  * @property integer $updated_at
  * @property string $password write-only password
  *
- * @property Session[] $sessions
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -56,14 +55,6 @@ class User extends ActiveRecord implements IdentityInterface
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getSessions()
-    {
-        return $this->hasMany(Session::className(), ['user_id' => 'id']);
     }
 
     /**

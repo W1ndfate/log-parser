@@ -1,76 +1,65 @@
-## Yii 2 Advanced API Skeleton
-===============================
+## API Apache Logs Parser
 
-Yii2-advanced-api-skeleton is based on [Yii2 App Advanced Template](https://github.com/yiisoft/yii2-app-advanced)
 
-### Installation
+### Установка
 -------------------
 
-1. Download
+1. Скачиваем
+    ```
+    git@github.com:W1ndfate/log-parser.git
+    ```
+2. Устанавлием зависимости `composer install`
+3. Инициализируем проект `php init`
+4. Создаем пустую базу данных PostgreSQL
+5. Указываем подключение к БД в файле `common\config\main-local.php`
+    ```
+   <?php
+   
+   return [
+       'components' => [
+           'db' => [
+               'class' => 'yii\db\Connection',
+               'dsn' => "pgsql:host=localhost;port=5432;dbname=test_db",
+               'username' => '',
+               'password' => '',
+               'charset' => 'utf8',
+           ]
+       ],
+   ];
+    ```
+6. Выполняем миграции `php yii migrate/up`
+7. (опционально) Запускаем тестовый локальный php-сервер из папки `api\web` командой `php -S localhost:8000`
 
-   ```
-   git clone git@github.com:clintliang/yii2-advanced-api-skeleton.git
-   ```
-2. Install dependencies with composer ```composer install```
-3. Run ``` php init --env=Development``` to initialize the application with development environment
-4. Create PostgreSQL database yii2api-dev
-5. ```cp .env.example .env``` and adjust configuration in ```.env``` file
-6. Apply migrations with console command ```php yii migrate```
 
-### Available URL Rules
+### Точки доступа API
 -------------------
 
-See [api/config/main.php](api/config/main.php)
+- `POST v1/login` - Авторизация для получения ключа доступа. Параметры тела запроса:  
+    - username (обязательный)
+    - password (обязательный)
+- `POST v1/register` - Регистрация нового пользователя. Параметры тела запроса: 
+    - username (обязательный, уникальный)
+    - password (обязательный)
+    - email (обязательный, уникальный)
+- `GET  v1/apache-logs` - Получение логов из БД. Авторизация с помощью Bearer Token. Параметры запроса:
+    - сount (необязательный, integer, по умолчанию - 100)
+    - timeFrom - время "от" (необязательный, timestamp)
+    - timeTo - время "до" (необязательный, timestamp)
+    - host - фильтр по IP-адресу (необязательный, string)
 
-```
-POST api/v1/session
-DELETE api/v1/session
-```
 
-### DIRECTORY STRUCTURE
+### Консольные приложение
 -------------------
 
-```
-common
-    config/              contains shared configurations
-    mail/                contains view files for e-mails
-    models/              contains model classes used in both backend and frontend
-console
-    config/              contains console configurations
-    controllers/         contains console controllers (commands)
-    migrations/          contains database migrations
-    models/              contains console-specific model classes
-    runtime/             contains files generated during runtime
-api
-    config/              contains api configurations
-    controllers/         contains Web controller classes
-    modules/             contains api modules for versioning control
-      v1/
-        controllers/     contains api controllers
-    runtime/             contains files generated during runtime
-    web/                 contains the entry script and Web resources
-backend
-    assets/              contains application assets such as JavaScript and CSS
-    config/              contains backend configurations
-    controllers/         contains Web controller classes
-    models/              contains backend-specific model classes
-    runtime/             contains files generated during runtime
-    views/               contains view files for the Web application
-    web/                 contains the entry script and Web resources
-frontend
-    assets/              contains application assets such as JavaScript and CSS
-    config/              contains frontend configurations
-    controllers/         contains Web controller classes
-    models/              contains frontend-specific model classes
-    runtime/             contains files generated during runtime
-    views/               contains view files for the Web application
-    web/                 contains the entry script and Web resources
-    widgets/             contains frontend widgets
-vendor/                  contains dependent 3rd-party packages
-environments/            contains environment-based overrides
-tests                    contains various tests for the advanced application
-    codeception/         contains tests developed with Codeception PHP Testing Framework
-```
+#### Настройка
 
-[![Yii2](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](http://www.yiiframework.com/)
+1. Указываем настройки парсера (рабочая папка, маска файлов, формат логов) в файле конфигурации `console\config\main.php`
+2. (опционально) Запуск в крон: в файл конфигурации cron записываем последовательность и частоту выполнения команд из списка. Пример:
+    ```
+    # Пример запуска скрипта в 5 утра каждый день:
+    0 5 * * * /usr/bin/php /home/www/log-parser yii parser/parse-apache
+    ```
 
+#### Команды
+
+`php yii parser/parse-apache` - парсит и записывает в БД Apache-логи из файлов

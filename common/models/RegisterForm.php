@@ -32,6 +32,10 @@ class RegisterForm extends Model
                 'targetClass' => User::class,
                 'message' => 'This username has already been taken.'
             ],
+            ['email', 'unique',
+                'targetClass' => User::class,
+                'message' => 'This email has already been taken.'
+            ],
         ];
     }
 
